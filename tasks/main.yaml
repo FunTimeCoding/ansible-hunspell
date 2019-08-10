@@ -1,1 +1,39 @@
 ---
+# hunspell.github.io
+# downloads.sourceforge.net/project/wordlist/speller
+# wordlist.aspell.net
+# github.com/en-wl/wordlist
+
+- apt:
+    name: hunspell,libhunspell-dev
+  remote_user: root
+  when: ansible_os_family == 'Debian'
+
+- homebrew:
+    name: hunspell
+  when: ansible_system == 'Darwin'
+
+- file:
+    path: '{{ ansible_user_dir }}/tmp/english'
+    state: directory
+
+- get_url:
+    url: http://downloads.sourceforge.net/project/wordlist/speller/2017.08.24/hunspell-en_US-2017.08.24.zip
+    dest: '{{ ansible_user_dir }}/tmp/english.zip'
+
+- unarchive:
+    src: '{{ ansible_user_dir }}/tmp/english.zip'
+    dest: '{{ ansible_user_dir }}/tmp/english'
+    remote_src: yes
+
+- file:
+    src: '{{ ansible_user_dir }}/tmp/english/en_US.aff'
+    dest: '{{ ansible_user_dir }}/Library/Spelling/en_US.aff'
+    state: link
+  when: ansible_system == 'Darwin'
+
+- file:
+    src: '{{ ansible_user_dir }}/tmp/english/en_US.dic'
+    dest: '{{ ansible_user_dir }}/Library/Spelling/en_US.dic'
+    state: link
+  when: ansible_system == 'Darwin'
