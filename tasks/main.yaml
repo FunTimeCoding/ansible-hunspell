@@ -24,6 +24,7 @@
 - unarchive:
     src: '{{ ansible_user_dir }}/tmp/english.zip'
     dest: '{{ ansible_user_dir }}/tmp/english'
+    creates: '{{ ansible_user_dir }}/tmp/english/README_en_US.txt'
     remote_src: yes
 
 - file:
