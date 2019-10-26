@@ -14,27 +14,44 @@
   when: ansible_system == 'Darwin'
 
 - file:
-    path: '{{ ansible_user_dir }}/tmp/english'
+    path: '{{ ansible_user_dir }}/tmp/english-{{ hunspell.version }}'
     state: directory
+  when: hunspell.download_dictionary
 
 - get_url:
-    url: http://downloads.sourceforge.net/project/wordlist/speller/2017.08.24/hunspell-en_US-2017.08.24.zip
-    dest: '{{ ansible_user_dir }}/tmp/english.zip'
+    url: 'https://{{ hunspell.mirror }}/project/wordlist/speller/{{ hunspell.version }}/hunspell-en_US-{{ hunspell.version }}.zip'
+    dest: '{{ ansible_user_dir }}/tmp/english-{{ hunspell.version }}.zip'
+  when: ansible_os_family == 'Debian' and hunspell.download_dictionary
+
+- get_url:
+    url: 'https://{{ hunspell.mirror }}/project/wordlist/speller/{{ hunspell.version }}/hunspell-en_US-{{ hunspell.version }}.zip'
+    dest: '{{ ansible_user_dir }}/tmp/english-{{ hunspell.version }}.zip'
+    #client_cert: '{{ ansible_user_dir }}/etc/ssl/cacert.pem'
+    # Why this is here: Request failed: <urlopen error [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: unable to get local issuer certificate (_ssl.c:1056)>
+    validate_certs: no
+  when: ansible_system == 'Darwin' and hunspell.download_dictionary
 
 - unarchive:
-    src: '{{ ansible_user_dir }}/tmp/english.zip'
-    dest: '{{ ansible_user_dir }}/tmp/english'
-    creates: '{{ ansible_user_dir }}/tmp/english/README_en_US.txt'
+    src: '{{ ansible_user_dir }}/tmp/english-{{ hunspell.version }}.zip'
+    dest: '{{ ansible_user_dir }}/tmp/english-{{ hunspell.version }}'
+    creates: '{{ ansible_user_dir }}/tmp/english-{{ hunspell.version }}/README_en_US.txt'
     remote_src: yes
+  when: hunspell.download_dictionary
 
 - file:
-    src: '{{ ansible_user_dir }}/tmp/english/en_US.aff'
+    src: '{{ ansible_user_dir }}/tmp/english-{{ hunspell.version }}'
+    dest: '{{ ansible_user_dir }}/tmp/english'
+    state: link
+  when: hunspell.download_dictionary
+
+- file:
+    src: '{{ ansible_user_dir }}/tmp/english-{{ hunspell.version }}/en_US.aff'
     dest: '{{ ansible_user_dir }}/Library/Spelling/en_US.aff'
     state: link
-  when: ansible_system == 'Darwin'
+  when: ansible_system == 'Darwin' and hunspell.download_dictionary
 
 - file:
-    src: '{{ ansible_user_dir }}/tmp/english/en_US.dic'
+    src: '{{ ansible_user_dir }}/tmp/english-{{ hunspell.version }}/en_US.dic'
     dest: '{{ ansible_user_dir }}/Library/Spelling/en_US.dic'
     state: link
-  when: ansible_system == 'Darwin'
+  when: ansible_system == 'Darwin' and hunspell.download_dictionary
