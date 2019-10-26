@@ -1,4 +1,4 @@
 hunspell:
-  download_dictionary: True
+  download_dictionary: False
   version: '2019.10.06'
   mirror: downloads.sourceforge.net
