@@ -21,6 +21,7 @@
 - get_url:
     url: 'https://{{ hunspell.mirror }}/project/wordlist/speller/{{ hunspell.version }}/hunspell-en_US-{{ hunspell.version }}.zip'
     dest: '{{ ansible_user_dir }}/tmp/english-{{ hunspell.version }}.zip'
+    mode: 0644
   when: ansible_os_family == 'Debian' and hunspell.download_dictionary
 
 - get_url:
@@ -28,7 +29,9 @@
     dest: '{{ ansible_user_dir }}/tmp/english-{{ hunspell.version }}.zip'
     #client_cert: '{{ ansible_user_dir }}/etc/ssl/cacert.pem'
     # Why this is here: Request failed: <urlopen error [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: unable to get local issuer certificate (_ssl.c:1056)>
-    validate_certs: no
+    # TODO: Does it work now?
+    #validate_certs: no
+    mode: 0644
   when: ansible_system == 'Darwin' and hunspell.download_dictionary
 
 - unarchive:
